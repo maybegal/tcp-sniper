@@ -27,17 +27,19 @@ def terminate_connection(packet: Packet) -> None:
 def handle_packet(packet: Packet, blacklist: list[str]) -> None:
     """Handles sniffed packet, shows to GUI, resets the connection."""
 
+    # Filter to only packet with IP and TCP layers.
     if not packet.haslayer(IP) or not packet.haslayer(TCP):
         return
 
-    # Filter to only packet in blacklist IP addresses.
+    # Filter to only packet with blacklist IP source or destination addresses.
     if (packet[IP].src not in blacklist) and (packet[IP].dst not in blacklist):
         return
 
-    # if (packet[TCP].flags != "A"):
-    #     return
+    # Filter to only ACK packets.
+    if packet[TCP].flags != "A":
+        return
 
-    print(packet)  # GUI in the future.
+    print(packet)   # GUI in the future.
 
     terminate_connection(packet)
 
