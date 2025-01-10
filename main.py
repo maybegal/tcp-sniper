@@ -3,29 +3,32 @@
 
 from scapy.all import sniff, send
 from scapy.layers.inet import IP, TCP
-from scapy.layers.l2 import Ether
 from scapy.packet import Packet
 
 
 def terminate_connection(packet: Packet) -> None:
-    """Sends RST packet to both source and destination addresses."""
+    """
+    Terminates a TCP connection by sending RST packets to both the source and destination addresses.
+    """
 
-    ip_address_src, port_src = packet[IP].src, packet[TCP].sport
-    ip_address_dst, port_dst = packet[IP].dst, packet[TCP].dport
-    seq = packet[TCP].seq
-    ack = packet[TCP].ack
+    ip_layer = packet[IP]
+    tcp_layer = packet[TCP]
 
-    # Create source and destination packets
-    src_packet = Ether() / IP(dst=ip_address_src / TCP(sport=port_dst, dport=port_src, flags="R", seq=ack))
-    dst_packet = Ether() / IP(dst=ip_address_dst) / TCP(sport=port_src, dport=port_dst, flags="R", seq=seq)
+    # Create an RST packet for the source.
+    to_src_packet = IP(src=ip_layer.dst, dst=ip_layer.src) / TCP(sport=tcp_layer.dst, dport=tcp_layer.src, flags="R", seq=tcp_layer.ack)
 
-    # Send packets
-    send(src_packet)
-    send(dst_packet)
+    # Create an RST packet for the destination.
+    to_dst_packet = IP(src=ip_layer.src, dst=ip_layer.dst) / TCP(sport=ip_layer.src, dport=tcp_layer.dst, flags="R", seq=tcp_layer.seq)
+
+    # Send the RST packets.
+    send(to_src_packet, verbose=False)
+    send(to_dst_packet, verbose=False)
 
 
 def handle_packet(packet: Packet, blacklist: list[str]) -> None:
-    """Handles sniffed packet, shows to GUI, resets the connection."""
+    """
+    Handles sniffed packet, shows to GUI, resets the connection.
+    """
 
     # Filter to only packet with IP and TCP layers.
     if not packet.haslayer(IP) or not packet.haslayer(TCP):
@@ -45,7 +48,9 @@ def handle_packet(packet: Packet, blacklist: list[str]) -> None:
 
 
 def start_sniffing(blacklist: list[str]) -> None:
-    """Start sniffing the network and process each packet."""
+    """
+    Start sniffing the network and process each packet.
+    """
     print("Starting network sniffing...")  # GUI in the future.
 
     sniff(
