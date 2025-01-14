@@ -35,7 +35,7 @@ class TCPSniperGUI:
         ctk.CTkLabel(
             blacklist_frame, text="Blacklist", font=("Arial", 16, "bold")
         ).pack(pady=5)
-        self.blacklist_entry = ctk.CTkEntry(blacklist_frame, placeholder_text="Enter IP")
+        self.blacklist_entry = ctk.CTkEntry(blacklist_frame, placeholder_text="Enter IP (e.g., 192.168.1.1)")
         self.blacklist_entry.pack(fill="x", padx=10, pady=5)
 
         ctk.CTkButton(
@@ -58,7 +58,7 @@ class TCPSniperGUI:
             fg_color="#008046",
             hover_color="#00a359",
         )
-        self.sniffer_button.pack(side="bottom", padx=10, pady=10)
+        self.sniffer_button.pack(fill="x", side="bottom", padx=10, pady=10)
 
         # Packet display
         packet_frame = ctk.CTkFrame(main_frame)
@@ -81,13 +81,17 @@ class TCPSniperGUI:
     def _toggle_sniffer(self):
         """Start or stop the sniffer based on the current state."""
         if self.sniffer_button.cget("text") == "Start Sniffing":
-            # Start the sniffer
-            self._start_sniffer()
-            self.sniffer_button.configure(
-                text="Stop Sniffing",
-                fg_color="#610000",
-                hover_color="#8b0000",
-            )
+            # Check if blacklist is empty and log a message
+            if not self.blacklist:
+                self._log_message("Blacklist is empty. Please add at least one IP address.")
+            else:
+                # Start the sniffer
+                self._start_sniffer()
+                self.sniffer_button.configure(
+                    text="Stop Sniffing",
+                    fg_color="#610000",
+                    hover_color="#8b0000",
+                )
         else:
             # Stop the sniffer
             self._stop_sniffer()
