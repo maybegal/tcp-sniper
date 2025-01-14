@@ -37,12 +37,18 @@ class TCPSniperGUI:
         ).pack(pady=5)
         self.blacklist_entry = ctk.CTkEntry(blacklist_frame, placeholder_text="Enter IP")
         self.blacklist_entry.pack(fill="x", padx=10, pady=5)
+
         ctk.CTkButton(
             blacklist_frame, text="Add", command=self._add_blacklist
         ).pack(fill="x", padx=10, pady=5)
 
-        self.blacklist_display = ctk.CTkTextbox(blacklist_frame, height=350)
+        ctk.CTkButton(
+            blacklist_frame, text="Remove", command=self._remove_blacklist
+        ).pack(fill="x", padx=10, pady=5)
+
+        self.blacklist_display = ctk.CTkTextbox(blacklist_frame, height=325)
         self.blacklist_display.pack(padx=10, pady=10)
+        self.blacklist_display.configure(state="disabled")
 
         # Sniffer control
         self.sniffer_button = ctk.CTkButton(
@@ -63,6 +69,7 @@ class TCPSniperGUI:
         ).pack(pady=5)
         self.packet_display = ctk.CTkTextbox(packet_frame)
         self.packet_display.pack(fill="both", expand=True, padx=10, pady=10)
+        self.packet_display.configure(state="disabled")
 
         # Packet count label
         self.packet_count_label = ctk.CTkLabel(
@@ -93,11 +100,54 @@ class TCPSniperGUI:
     def _add_blacklist(self):
         """Add an IP to the blacklist."""
         ip = self.blacklist_entry.get().strip()
-        if ip and ip not in self.blacklist:
+
+        try:
+            ipaddress.ip_address(ip)
+        except ValueError:
+            self._log_message(f"Invalid IP address entered: {ip}")
+            return
+
+        if ip in self.blacklist:
+            self._log_message(f"IP address {ip} is already in the blacklist.")
+            return
+
+        if ip:
             self.blacklist.add(ip)
             self.sniffer_thread.update_blacklist(self.blacklist)
+            self.blacklist_display.configure(state="normal")
             self.blacklist_display.insert("end", f"{ip}\n")
+            self.blacklist_display.configure(state="disabled")
             self.blacklist_entry.delete(0, "end")
+            self._log_message(f"IP address {ip} added to the blacklist.")
+
+    def _remove_blacklist(self):
+        """Remove an IP from the blacklist."""
+        ip = self.blacklist_entry.get().strip()
+
+        try:
+            ipaddress.ip_address(ip)
+        except ValueError:
+            self._log_message(f"Invalid IP address entered: {ip}")
+            return
+
+        if ip not in self.blacklist:
+            self._log_message(f"IP address {ip} is not in the blacklist.")
+            return
+
+        if ip:
+            self.blacklist.remove(ip)
+            self.sniffer_thread.update_blacklist(self.blacklist)
+            self.blacklist_display.configure(state="normal")
+
+            blacklist_content = self.blacklist_display.get("1.0", "end-1c").splitlines()
+            blacklist_content = [line for line in blacklist_content if line.strip() != ip]
+            self.blacklist_display.delete("1.0", "end")
+            for line in blacklist_content:
+                self.blacklist_display.insert("end", line + "\n")
+
+            self.blacklist_display.configure(state="disabled")
+            self.blacklist_entry.delete(0, "end")
+            self._log_message(f"IP address {ip} removed from the blacklist.")
 
     def _start_sniffer(self):
         """Start the sniffer."""
@@ -115,14 +165,16 @@ class TCPSniperGUI:
 
         self.packet_count += 1
 
-        if self.packet_count % 100 == 0:
+        if self.packet_count % 50 == 0:
             self.packet_count_label.configure(text=f"Total TCP Packets Captured: {self.packet_count}, "
                                                    f"Terminated Connections: {self.rst_packet_count}")
 
     def _log_message(self, message: str):
         """Log message and show to user."""
         full = f"[{_get_current_time()}] {message}\n"
+        self.packet_display.configure(state="normal")
         self.packet_display.insert("end", full)
+        self.packet_display.configure(state="disabled")
         self.packet_display.see("end")
 
     def run(self):
