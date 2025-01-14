@@ -37,7 +37,7 @@ def terminate_connection(packet: Packet, callback: Callable[[bool, Optional[str]
         if callback:
             callback(
                 True, f"Connection terminated between {ip_layer.src}:{tcp_layer.sport} "
-                      f"and {ip_layer.dst}:{tcp_layer.dport}. RST packets sent to both sides.\n\n"
+                      f"and {ip_layer.dst}:{tcp_layer.dport}."
             )
 
         # if callback:
@@ -62,7 +62,7 @@ class TCPSniffer:
         self.blacklist: Set[str] = set()
         self.is_running = False
 
-    def handle_packet(self, packet: Packet, callback: Callable[[bool, Optional[str]], None] = None) -> None:
+    def handle_packet(self, packet: Packet, callback: Callable[[bool, Optional[str]], None]) -> None:
         """
         Handles sniffed packet, shows to GUI, resets the connection.
         """
