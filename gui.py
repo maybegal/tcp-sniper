@@ -58,6 +58,12 @@ class TCPSniperGUI:
         self.packet_display = ctk.CTkTextbox(packet_frame)
         self.packet_display.pack(fill="both", expand=True, padx=10, pady=10)
 
+        # Packet count label
+        self.packet_count_label = ctk.CTkLabel(
+            packet_frame, text=f"Packets Captured: {self.packet_count}", font=("Arial", 12)
+        )
+        self.packet_count_label.pack(pady=10)
+
     def _toggle_sniffer(self):
         """Start or stop the sniffer based on the current state."""
         if self.sniffer_button.cget("text") == "Start Sniffing":
@@ -104,6 +110,8 @@ class TCPSniperGUI:
             self.rst_packet_count += 1
 
         self.packet_count += 1
+        self.packet_count_label.configure(text=f"Total Packets Captured: {self.packet_count}, "
+                                               f"Terminated Connections: {self.rst_packet_count}")
 
     def run(self):
         """Run the GUI."""

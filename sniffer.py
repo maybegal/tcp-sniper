@@ -35,10 +35,16 @@ def terminate_connection(packet: Packet, callback: Callable[[bool, Optional[str]
         send(to_dst_packet, verbose=False)
 
         if callback:
-            message = f"Found blacklist IP packet:\n{packet.show(dump=True)}\n"
-            f"Sent fake RST to src packet:\n{to_src_packet.show(dump=True)}\n"
-            f"Sent fake RST to dst packet:\n{to_dst_packet.show(dump=True)}\n\n"
-            callback(True, message)
+            callback(
+                True, f"Connection terminated between {ip_layer.src}:{tcp_layer.sport} "
+                      f"and {ip_layer.dst}:{tcp_layer.dport}. RST packets sent to both sides."
+            )
+
+        # if callback:
+        #     message = f"Found blacklist IP packet:\n{packet.show(dump=True)}\n"
+        #     f"Sent fake RST to src packet:\n{to_src_packet.show(dump=True)}\n"
+        #     f"Sent fake RST to dst packet:\n{to_dst_packet.show(dump=True)}\n\n"
+        #     callback(True, message)
 
     except Exception as e:
         print(f"Error terminating connection: {str(e)}")
