@@ -1,3 +1,5 @@
+# gui.py
+
 from sniffer_thread import SnifferThread
 import customtkinter as ctk
 
@@ -6,20 +8,19 @@ class TCPSniperGUI:
     def __init__(self):
         self.root = ctk.CTk()
 
-        # Internal state
         self.blacklist = set()
         self.packet_count = 0
         self.rst_packet_count = 0
         self.sniffer_thread = SnifferThread(self._packet_callback)
 
-        # Create GUI components
         self._create_gui()
 
     def _create_gui(self):
         """Set up the basic layout of the GUI."""
+
         # App settings
         self.root.title("TCP Sniper")
-        self.root.geometry("800x600")
+        self.root.geometry("1000x600")
         self.root.iconbitmap("images/icon.ico")
 
         # Main frame
