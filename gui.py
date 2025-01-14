@@ -96,16 +96,14 @@ class TCPSniperGUI:
         print("Sniffer stopped.")
         self.sniffer_thread.stop_sniffer()
 
-    def _packet_callback(self, found_packet: str, to_src_packet: str, to_dst_packet: str):
+    def _packet_callback(self, is_found: bool, message: str = None):
         """Update the GUI with packet information."""
-        self.packet_display.insert(
-            "end",
-            f"Found blacklist IP packet:\n{found_packet}\n"
-            f"Sent fake RST to src packet:\n{to_src_packet}\n"
-            f"Sent fake RST to dst packet:\n{to_dst_packet}\n\n",
-        )
-        self.packet_display.see("end")
-        self.rst_packet_count += 1
+        if is_found:
+            self.packet_display.insert("end", message)
+            self.packet_display.see("end")
+            self.rst_packet_count += 1
+
+        self.packet_count += 1
 
     def run(self):
         """Run the GUI."""

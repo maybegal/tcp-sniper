@@ -2,11 +2,11 @@
 
 import threading
 from sniffer import TCPSniffer
-from typing import Callable
+from typing import Callable, Optional
 
 
 class SnifferThread:
-    def __init__(self, callback: Callable[[str, str, str], None]):
+    def __init__(self, callback: Callable[[bool, Optional[str]], None] = None):
         """
         Initialize the SnifferThread.
 

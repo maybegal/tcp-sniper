@@ -3,10 +3,10 @@
 from scapy.all import sniff, send
 from scapy.layers.inet import IP, TCP
 from scapy.packet import Packet
-from typing import Set, Callable
+from typing import Set, Callable, Optional
 
 
-def terminate_connection(packet: Packet, callback: Callable[[str, str, str], None] = None) -> None:
+def terminate_connection(packet: Packet, callback: Callable[[bool, Optional[str]], None] = None) -> None:
     """
     Terminates a TCP connection by sending RST packets to both the source and destination addresses.
     """
@@ -35,7 +35,10 @@ def terminate_connection(packet: Packet, callback: Callable[[str, str, str], Non
         send(to_dst_packet, verbose=False)
 
         if callback:
-            callback(packet.show(dump=True), to_src_packet.show(dump=True), to_dst_packet.show(dump=True))
+            message = f"Found blacklist IP packet:\n{packet.show(dump=True)}\n"
+            f"Sent fake RST to src packet:\n{to_src_packet.show(dump=True)}\n"
+            f"Sent fake RST to dst packet:\n{to_dst_packet.show(dump=True)}\n\n"
+            callback(True, message)
 
     except Exception as e:
         print(f"Error terminating connection: {str(e)}")
@@ -53,12 +56,14 @@ class TCPSniffer:
         self.blacklist: Set[str] = set()
         self.is_running = False
 
-    def handle_packet(self, packet: Packet, callback: Callable[[str, str, str], None] = None) -> None:
+    def handle_packet(self, packet: Packet, callback: Callable[[bool, Optional[str]], None] = None) -> None:
         """
         Handles sniffed packet, shows to GUI, resets the connection.
         """
         try:
-            print(Packet)
+            if callback:
+                callback(False, None)
+
             # Filter to only packet with IP and TCP layers
             if not packet.haslayer(IP) or not packet.haslayer(TCP):
                 return
@@ -82,7 +87,7 @@ class TCPSniffer:
         except Exception as e:
             print(f"Error handling packet: {str(e)}")
 
-    def start_sniffing(self, callback: Callable[[str, str, str], None] = None) -> None:
+    def start_sniffing(self, callback: Callable[[bool, Optional[str]], None] = None) -> None:
         """
         Start sniffing the network and process each packet.
         """
