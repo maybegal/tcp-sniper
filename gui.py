@@ -2,6 +2,7 @@
 
 from sniffer_thread import SnifferThread
 import customtkinter as ctk
+import ipaddress
 
 
 class TCPSniperGUI:
@@ -48,8 +49,8 @@ class TCPSniperGUI:
             blacklist_frame,
             text="Start Sniffing",
             command=self._toggle_sniffer,
-            fg_color="green",
-            hover_color="#005f00",
+            fg_color="#008046",
+            hover_color="#00a359",
         )
         self.sniffer_button.pack(side="bottom", padx=10, pady=10)
 
@@ -65,7 +66,7 @@ class TCPSniperGUI:
 
         # Packet count label
         self.packet_count_label = ctk.CTkLabel(
-            packet_frame, text=f"Total Packets Captured: {self.packet_count}, "
+            packet_frame, text=f"Total TCP Packets Captured: {self.packet_count}, "
                                f"Terminated Connections: {self.rst_packet_count}", font=("Arial", 12)
         )
         self.packet_count_label.pack(pady=(0, 10))
@@ -77,7 +78,7 @@ class TCPSniperGUI:
             self._start_sniffer()
             self.sniffer_button.configure(
                 text="Stop Sniffing",
-                fg_color="red",
+                fg_color="#610000",
                 hover_color="#8b0000",
             )
         else:
@@ -85,8 +86,8 @@ class TCPSniperGUI:
             self._stop_sniffer()
             self.sniffer_button.configure(
                 text="Start Sniffing",
-                fg_color="green",
-                hover_color="#005f00",
+                fg_color="#008046",
+                hover_color="#00a359",
             )
 
     def _add_blacklist(self):
@@ -108,15 +109,28 @@ class TCPSniperGUI:
 
     def _packet_callback(self, is_found: bool, message: str = None):
         """Update the GUI with packet information."""
-        if is_found:
-            self.packet_display.insert("end", message)
-            self.packet_display.see("end")
+        if is_found and message:
+            self._log_message(message)
             self.rst_packet_count += 1
 
         self.packet_count += 1
-        self.packet_count_label.configure(text=f"Total Packets Captured: {self.packet_count}, "
-                                               f"Terminated Connections: {self.rst_packet_count}")
+
+        if self.packet_count % 100 == 0:
+            self.packet_count_label.configure(text=f"Total TCP Packets Captured: {self.packet_count}, "
+                                                   f"Terminated Connections: {self.rst_packet_count}")
+
+    def _log_message(self, message: str):
+        """Log message and show to user."""
+        full = f"[{_get_current_time()}] {message}\n"
+        self.packet_display.insert("end", full)
+        self.packet_display.see("end")
 
     def run(self):
         """Run the GUI."""
         self.root.mainloop()
+
+
+def _get_current_time():
+    """Return current time as a formatted string."""
+    from datetime import datetime
+    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")

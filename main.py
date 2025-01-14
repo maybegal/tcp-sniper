@@ -5,7 +5,6 @@ from gui import TCPSniperGUI
 
 def main() -> None:
     gui = TCPSniperGUI()
-
     gui.run()
 
 
