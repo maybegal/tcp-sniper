@@ -5,6 +5,7 @@
 ## Project Overview
 
 TCP Sniper demonstrates how TCP Reset attacks work by monitoring network traffic and automatically terminating unwanted TCP connections in real-time. It provides a graphical interface for managing IP blacklists and monitoring network traffic, helping students understand network security concepts and TCP protocol behavior.
+
 ![Screenshot](/images/screenshot.png)
 
 ## Features
@@ -112,4 +113,4 @@ Feel free to submit issues, fork the repository, and create pull requests for an
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the Creative Commons Zero v1.0 Universal License - see the LICENSE file for details.
