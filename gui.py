@@ -5,8 +5,6 @@ import customtkinter as ctk
 class TCPSniperGUI:
     def __init__(self):
         self.root = ctk.CTk()
-        self.root.title("TCP Sniper")
-        self.root.geometry("800x600")
 
         # Internal state
         self.blacklist = set()
@@ -19,6 +17,12 @@ class TCPSniperGUI:
 
     def _create_gui(self):
         """Set up the basic layout of the GUI."""
+        # App settings
+        self.root.title("TCP Sniper")
+        self.root.geometry("800x600")
+        self.root.iconbitmap("images/icon.ico")
+
+        # Main frame
         main_frame = ctk.CTkFrame(self.root)
         main_frame.pack(fill="both", expand=True, padx=10, pady=10)
 
