@@ -30,12 +30,12 @@ class TCPSniperGUI:
             blacklist_frame, text="Blacklist", font=("Arial", 16, "bold")
         ).pack(pady=5)
         self.blacklist_entry = ctk.CTkEntry(blacklist_frame, placeholder_text="Enter IP")
-        self.blacklist_entry.pack(pady=5)
+        self.blacklist_entry.pack(fill="x", padx=10, pady=5)
         ctk.CTkButton(
             blacklist_frame, text="Add", command=self._add_blacklist
-        ).pack(pady=5)
+        ).pack(fill="x", padx=10, pady=5)
 
-        self.blacklist_display = ctk.CTkTextbox(blacklist_frame, height=300)
+        self.blacklist_display = ctk.CTkTextbox(blacklist_frame, height=350)
         self.blacklist_display.pack(padx=10, pady=10)
 
         # Sniffer control
@@ -60,9 +60,10 @@ class TCPSniperGUI:
 
         # Packet count label
         self.packet_count_label = ctk.CTkLabel(
-            packet_frame, text=f"Packets Captured: {self.packet_count}", font=("Arial", 12)
+            packet_frame, text=f"Total Packets Captured: {self.packet_count}, "
+                               f"Terminated Connections: {self.rst_packet_count}", font=("Arial", 12)
         )
-        self.packet_count_label.pack(pady=10)
+        self.packet_count_label.pack(pady=(0, 10))
 
     def _toggle_sniffer(self):
         """Start or stop the sniffer based on the current state."""
@@ -94,12 +95,10 @@ class TCPSniperGUI:
 
     def _start_sniffer(self):
         """Start the sniffer."""
-        print("Sniffer started.")
         self.sniffer_thread.start_sniffer()
 
     def _stop_sniffer(self):
         """Stop the sniffer."""
-        print("Sniffer stopped.")
         self.sniffer_thread.stop_sniffer()
 
     def _packet_callback(self, is_found: bool, message: str = None):

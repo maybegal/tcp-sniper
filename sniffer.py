@@ -37,7 +37,7 @@ def terminate_connection(packet: Packet, callback: Callable[[bool, Optional[str]
         if callback:
             callback(
                 True, f"Connection terminated between {ip_layer.src}:{tcp_layer.sport} "
-                      f"and {ip_layer.dst}:{tcp_layer.dport}. RST packets sent to both sides."
+                      f"and {ip_layer.dst}:{tcp_layer.dport}. RST packets sent to both sides.\n"
             )
 
         # if callback:
@@ -67,6 +67,9 @@ class TCPSniffer:
         Handles sniffed packet, shows to GUI, resets the connection.
         """
         try:
+            if not self.is_running:
+                return
+
             if callback:
                 callback(False, None)
 
